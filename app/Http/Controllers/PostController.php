@@ -5,12 +5,20 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePostRequest;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use App\Repositories\Interfaces\PostRepositoryInterface;
 
 class PostController extends Controller
-{
+{   
+    protected $postRepository;
+
+    public function __construct(PostRepositoryInterface $postRepository)
+    {
+        $this->postRepository = $postRepository;
+    }
+
     public function index()
     {
-        $posts = Post::all();
+        $posts = $this->postRepository->all();
         return view('posts.index', compact('posts'));
     }
 
@@ -22,7 +30,7 @@ class PostController extends Controller
     public function store(StorePostRequest $request)
     {
         
-        Post::create($request->only('title', 'content'));
+        $this->postRepository->store($request->only('title', 'content'));
 
         return redirect()->route('posts.index')->with('success', 'Post created successfully.');
     }
@@ -41,14 +49,14 @@ class PostController extends Controller
     public function update(StorePostRequest $request, Post $post)
     {
         
-        $post->update($request->only('title', 'content'));
+        $this->postRepository->update($request->only('title', 'content'), $post);
 
         return redirect()->route('posts.index')->with('success', 'Post updated successfully.');
     }
 
     public function destroy(Post $post)
     {
-        $post->delete();
+        $this->postRepository->delete($post);
         return redirect()->route('posts.index')->with('success', 'Post deleted successfully.');
     }
 }
